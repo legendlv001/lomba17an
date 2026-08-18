@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math Showdown Agustusan - IFP TV Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@600;800&display=swap');
+        
+        * {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+            background-color: #0f172a;
+        }
+        
+        .font-game {
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .rope-strain {
+            animation: strain 0.2s infinite alternate ease-in-out;
+        }
+
+        @keyframes strain {
+            0% { transform: translateY(-1px) scaleY(0.98); }
+            100% { transform: translateY(1px) scaleY(1.02); }
+        }
+
+        .climb-action {
+            animation: climbStep 0.25s ease-in-out;
+        }
+
+        @keyframes climbStep {
+            0% { transform: translate(-50%, 0) rotate(-4deg); }
+            50% { transform: translate(-50%, -10px) rotate(4deg); }
+            100% { transform: translate(-50%, 0) rotate(0deg); }
+        }
+
+        .pull-impact-p1 {
+            animation: pullLeft 0.25s ease-out;
+        }
+        .pull-impact-p2 {
+            animation: pullRight 0.25s ease-out;
+        }
+
+        @keyframes pullLeft {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(-20px); }
+            100% { transform: translateX(0); }
+        }
+
+        @keyframes pullRight {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(20px); }
+            100% { transform: translateX(0); }
+        }
+
+        .shake {
+            animation: shake 0.35s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-4px, 0, 0); }
+            20%, 80% { transform: translate3d(6px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+            40%, 60% { transform: translate3d(8px, 0, 0); }
+        }
+
+        .ifp-btn {
+            min-height: 75px;
+            font-size: 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-width: 3px;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+            transition: transform 0.05s ease, background-color 0.1s ease;
+        }
+        
+        .ifp-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+        }
+
+        .player-avatar-box {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 1.5rem;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col justify-between">
+
+    <header class="p-3 md:p-4 bg-slate-800/90 border-b-2 border-slate-700 flex justify-between items-center z-20 shadow-lg">
+        <h1 class="text-xl md:text-3xl font-game text-amber-400 tracking-wide flex items-center gap-3">
+            <i class="fa-solid fa-flag-checkered text-red-500 text-2xl"></i> MATH SHOWDOWN AGUSTUSAN <span class="hidden md:inline text-xs bg-amber-500/20 text-amber-300 px-2 py-1 rounded-lg border border-amber-500/30 font-sans">Edisi TV IFP</span>
+        </h1>
+
+        <div class="flex items-center gap-2">
+            <button id="btnSound" onclick="toggleSound()" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-amber-300 px-3 py-2 rounded-xl font-bold text-sm md:text-base border border-slate-600 flex items-center gap-2 transition">
+                <i id="soundIcon" class="fa-solid fa-volume-high text-lg"></i>
+                <span class="hidden md:inline">Suara</span>
+            </button>
+            
+            <button id="btnMusic" onclick="toggleMusic()" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-emerald-300 px-3 py-2 rounded-xl font-bold text-sm md:text-base border border-slate-600 flex items-center gap-2 transition">
+                <i id="musicIcon" class="fa-solid fa-music text-lg"></i>
+                <span class="hidden md:inline">Musik BGM</span>
+            </button>
+            
+            <button onclick="toggleFullscreen()" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-3 py-2 rounded-xl font-bold text-sm md:text-base flex items-center gap-2 shadow transition">
+                <i class="fa-solid fa-expand text-lg"></i>
+                <span class="hidden md:inline">Layar Penuh</span>
+            </button>
+
+            <button id="btnHome" onclick="resetToMenu()" class="hidden bg-red-600 hover:bg-red-500 active:scale-95 text-white px-3 py-2 rounded-xl font-bold text-sm md:text-base transition flex items-center gap-2">
+                <i class="fa-solid fa-house"></i>
+                <span class="hidden md:inline">Menu</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col items-center justify-center p-3 md:p-6 w-full max-w-7xl mx-auto">
+
+        <!-- SETUP MENU FOR IFP TV -->
+        <div id="setupMenu" class="w-full max-w-3xl bg-slate-800 border-4 border-slate-700 rounded-3xl p-5 md:p-8 shadow-2xl space-y-5">
+            <h2 class="text-2xl md:text-4xl font-game text-amber-300 text-center tracking-wide">PENGATURAN LOMBA AGUSTUSAN</h2>
+            
+            <!-- Input Nama Pemain -->
+            <div class="bg-slate-900/80 p-4 rounded-2xl border-2 border-slate-700 space-y-3">
+                <label class="block text-amber-400 font-bold text-sm md:text-base"><i class="fa-solid fa-users text-lg"></i> Nama Pemain:</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <span class="text-xs text-red-400 font-bold block mb-1">PEMAIN 1 (Sisi Kiri)</span>
+                        <input type="text" id="p1NameInput" value="Pemain 1" maxlength="12" class="w-full bg-slate-800 border-2 border-red-500/80 rounded-xl px-4 py-2.5 text-white text-lg font-bold focus:outline-none focus:border-red-400">
+                    </div>
+                    <div>
+                        <span class="text-xs text-sky-400 font-bold block mb-1">PEMAIN 2 (Sisi Kanan)</span>
+                        <input type="text" id="p2NameInput" value="Pemain 2" maxlength="12" class="w-full bg-slate-800 border-2 border-sky-500/80 rounded-xl px-4 py-2.5 text-white text-lg font-bold focus:outline-none focus:border-sky-400">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mode Game & Level Kelas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Jenis Lomba -->
+                <div>
+                    <label class="block text-slate-200 font-bold mb-1.5 text-sm md:text-base">1. Pilih Jenis Lomba:</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" onclick="selectGame('tug')" id="optTug" class="game-opt p-3 rounded-2xl border-4 border-amber-500 bg-amber-500/20 flex flex-col items-center gap-1 hover:bg-amber-500/30 active:scale-95 transition">
+                            <span class="text-3xl">🪢</span>
+                            <span class="font-game text-lg">Tarik Tambang</span>
+                        </button>
+                        <button type="button" onclick="selectGame('pinang')" id="optPinang" class="game-opt p-3 rounded-2xl border-4 border-slate-600 bg-slate-700 flex flex-col items-center gap-1 hover:bg-slate-600 active:scale-95 transition">
+                            <span class="text-3xl">🌴</span>
+                            <span class="font-game text-lg">Panjat Pinang</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Level Kelas -->
+                <div>
+                    <label class="block text-slate-200 font-bold mb-1.5 text-sm md:text-base">2. Pilih Tingkat Kelas:</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" onclick="selectLevel('low')" id="optLow" class="level-opt p-3 rounded-2xl border-4 border-pink-500 bg-pink-500/20 flex flex-col items-center gap-1 hover:bg-pink-500/30 active:scale-95 transition">
+                            <span class="text-3xl">🧸</span>
+                            <span class="font-game text-base text-pink-300">Kelas Rendah</span>
+                            <span class="text-[11px] text-slate-300 font-semibold">Kelas 1 - 3 SD</span>
+                        </button>
+                        <button type="button" onclick="selectLevel('high')" id="optHigh" class="level-opt p-3 rounded-2xl border-4 border-slate-600 bg-slate-700 flex flex-col items-center gap-1 hover:bg-slate-600 active:scale-95 transition">
+                            <span class="text-3xl">🎒</span>
+                            <span class="font-game text-base text-indigo-300">Kelas Tinggi</span>
+                            <span class="text-[11px] text-slate-300 font-semibold">Kelas 4 - 6 SD</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mata Pelajaran -->
+            <div>
+                <label class="block text-slate-200 font-bold mb-1.5 text-sm md:text-base">3. Pilih Mata Pelajaran:</label>
+                <div class="grid grid-cols-3 gap-3">
+                    <button type="button" onclick="selectSubject('math')" id="optMath" class="subject-opt p-3 rounded-2xl border-4 border-emerald-500 bg-emerald-500/20 flex flex-col items-center gap-1 hover:bg-emerald-500/30 active:scale-95 transition">
+                        <span class="text-2xl">➕</span>
+                        <span class="font-game text-sm text-emerald-400">Matematika</span>
+                    </button>
+                    <button type="button" onclick="selectSubject('indo')" id="optIndo" class="subject-opt p-3 rounded-2xl border-4 border-slate-600 bg-slate-700 flex flex-col items-center gap-1 hover:bg-slate-600 active:scale-95 transition">
+                        <span class="text-2xl">📚</span>
+                        <span class="font-game text-sm text-sky-400">Bahasa Indo</span>
+                    </button>
+                    <button type="button" onclick="selectSubject('ipa')" id="optIpa" class="subject-opt p-3 rounded-2xl border-4 border-slate-600 bg-slate-700 flex flex-col items-center gap-1 hover:bg-slate-600 active:scale-95 transition">
+                        <span class="text-2xl">🌿</span>
+                        <span class="font-game text-sm text-amber-400">IPA (Sains)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tombol Mulai Game -->
+            <button onclick="startGame()" class="w-full bg-gradient-to-r from-emerald-500 via-amber-500 to-red-500 hover:brightness-110 active:scale-95 text-white font-game text-2xl py-4 rounded-2xl shadow-xl transition transform">
+                MULAI LOMBA SEKARANG! 🚀
+            </button>
+        </div>
+
+        <div id="gameScreen" class="hidden w-full flex-1 flex flex-col justify-between gap-4">
+            
+            <!-- Visual Arena Agustusan -->
+            <div class="relative w-full h-60 md:h-72 bg-slate-800 rounded-3xl border-4 border-slate-700 overflow-hidden flex flex-col justify-center items-center shadow-2xl">
+                
+                <div class="absolute inset-0 bg-gradient-to-b from-sky-600/30 via-slate-800 to-emerald-950/70 pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 right-0 h-10 bg-emerald-700 border-t-4 border-emerald-500"></div>
+
+                <!-- GAME 1: VISUAL TARIK TAMBANG -->
+                <div id="tugVisual" class="w-full h-full relative flex items-center justify-center overflow-hidden">
+                    <div class="absolute top-0 bottom-0 w-1 bg-amber-400 z-0 border-r-2 border-dashed border-red-500"></div>
+                    <div class="absolute left-1/4 top-0 bottom-0 border-l-2 border-dashed border-red-500/40"></div>
+                    <div class="absolute right-1/4 top-0 bottom-0 border-r-2 border-dashed border-sky-500/40"></div>
+
+                    <div id="ropeContainer" class="relative flex items-center justify-center transition-all duration-300 ease-out z-10" style="transform: translateX(0px);">
+                        
+                        <div class="flex items-center">
+                            <div class="flex flex-col items-center">
+                                <span id="p1DisplayTag" class="text-xs md:text-sm font-bold bg-red-600 px-3 py-1 rounded-full text-white mb-1 shadow-md">P1</span>
+                                <div id="p1Avatar" class="player-avatar-box text-4xl md:text-6xl transform -scale-x-100 transition-transform duration-200">👦🏽</div>
+                            </div>
+                            
+                            <div class="relative w-28 md:w-48 h-5 bg-amber-800 border-y-2 border-amber-950 rounded-l flex items-center justify-around overflow-hidden shadow-inner rope-strain">
+                                <div class="w-3 h-full bg-amber-700/60 rotate-45"></div>
+                                <div class="w-3 h-full bg-amber-700/60 rotate-45"></div>
+                                <div class="w-3 h-full bg-amber-700/60 rotate-45"></div>
+                            </div>
+                        </div>
+
+                        <div class="relative z-20 flex flex-col items-center -mx-2">
+                            <div class="w-5 h-8 bg-gradient-to-b from-red-600 to-white border-2 border-slate-900 rounded-sm shadow-lg animate-bounce"></div>
+                        </div>
+
+                        <div class="flex items-center">
+                            <div class="relative w-28 md:w-48 h-5 bg-amber-800 border-y-2 border-amber-950 rounded-r flex items-center justify-around overflow-hidden shadow-inner rope-strain">
+                                <div class="w-3 h-full bg-amber-700/60 rotate-45"></div>
+                                <div class="w-3 h-full bg-amber-700/60 rotate-45"></div>
+                                <div class="w-3 h-full bg-amber-700/60 rotate-45"></div>
+                            </div>
+
+                            <div class="flex flex-col items-center">
+                                <span id="p2DisplayTag" class="text-xs md:text-sm font-bold bg-sky-600 px-3 py-1 rounded-full text-white mb-1 shadow-md">P2</span>
+                                <div id="p2Avatar" class="player-avatar-box text-4xl md:text-6xl transition-transform duration-200">👧🏽</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- GAME 2: VISUAL PANJAT PINANG -->
+                <div id="pinangVisual" class="hidden w-full h-full relative flex justify-around items-end pb-8 px-8 md:px-24 z-10">
+                    
+                    <div class="relative flex flex-col items-center h-full justify-end w-1/3">
+                        <div class="text-3xl md:text-4xl mb-1 filter drop-shadow animate-bounce">🎁🚲🏆</div>
+                        <div class="w-10 md:w-12 h-full bg-gradient-to-r from-amber-900 via-amber-800 to-amber-950 rounded-t-lg border-x-2 border-amber-950 relative shadow-lg">
+                            <div class="absolute w-full h-1.5 bg-amber-950 top-1/4"></div>
+                            <div class="absolute w-full h-1.5 bg-amber-950 top-2/4"></div>
+                            <div class="absolute w-full h-1.5 bg-amber-950 top-3/4"></div>
+
+                            <div id="p1Climber" class="absolute right-full pr-2 flex flex-col items-center transition-all duration-300 ease-out" style="bottom: 0%;">
+                                <span id="p1PinangTag" class="text-xs bg-red-600 text-white font-bold px-2 py-0.5 rounded-full whitespace-nowrap mb-1 shadow">P1</span>
+                                <div id="p1ClimberIcon" class="player-avatar-box text-3xl md:text-5xl filter drop-shadow transform -scale-x-100">🏃🏽‍♂️</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative flex flex-col items-center h-full justify-end w-1/3">
+                        <div class="text-3xl md:text-4xl mb-1 filter drop-shadow animate-bounce">🎁🚲🏆</div>
+                        <div class="w-10 md:w-12 h-full bg-gradient-to-r from-amber-900 via-amber-800 to-amber-950 rounded-t-lg border-x-2 border-amber-950 relative shadow-lg">
+                            <div class="absolute w-full h-1.5 bg-amber-950 top-1/4"></div>
+                            <div class="absolute w-full h-1.5 bg-amber-950 top-2/4"></div>
+                            <div class="absolute w-full h-1.5 bg-amber-950 top-3/4"></div>
+
+                            <div id="p2Climber" class="absolute left-full pl-2 flex flex-col items-center transition-all duration-300 ease-out" style="bottom: 0%;">
+                                <span id="p2PinangTag" class="text-xs bg-sky-600 text-white font-bold px-2 py-0.5 rounded-full whitespace-nowrap mb-1 shadow">P2</span>
+                                <div id="p2ClimberIcon" class="player-avatar-box text-3xl md:text-5xl filter drop-shadow">🏃🏽‍♀️</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                
+                <!-- PEMAIN 1 -->
+                <div id="p1Card" class="bg-red-950/80 border-4 border-red-600 rounded-3xl p-4 md:p-5 flex flex-col justify-between shadow-2xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <span id="p1CardTitle" class="font-game text-red-300 text-lg md:text-xl flex items-center gap-2">
+                            <i class="fa-solid fa-user text-red-400"></i> Pemain 1
+                        </span>
+                        <span id="p1Score" class="bg-red-600 text-white font-game px-4 py-1 rounded-full text-sm md:text-base shadow">Skor: 0</span>
+                    </div>
+
+                    <div class="bg-slate-900/95 rounded-2xl p-4 text-center my-2 border-2 border-slate-700 shadow-inner">
+                        <div id="p1Math" class="text-2xl md:text-4xl font-game text-amber-300 tracking-wide">? + ?</div>
+                    </div>
+
+                    <div id="p1Options" class="grid grid-cols-2 gap-3 mt-2"></div>
+                </div>
+
+                <!-- PEMAIN 2 -->
+                <div id="p2Card" class="bg-sky-950/80 border-4 border-sky-600 rounded-3xl p-4 md:p-5 flex flex-col justify-between shadow-2xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <span id="p2CardTitle" class="font-game text-sky-300 text-lg md:text-xl flex items-center gap-2">
+                            <i class="fa-solid fa-user text-sky-400"></i> Pemain 2
+                        </span>
+                        <span id="p2Score" class="bg-sky-600 text-white font-game px-4 py-1 rounded-full text-sm md:text-base shadow">Skor: 0</span>
+                    </div>
+
+                    <div class="bg-slate-900/95 rounded-2xl p-4 text-center my-2 border-2 border-slate-700 shadow-inner">
+                        <div id="p2Math" class="text-2xl md:text-4xl font-game text-amber-300 tracking-wide">? + ?</div>
+                    </div>
+
+                    <div id="p2Options" class="grid grid-cols-2 gap-3 mt-2"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <div id="winnerModal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-slate-800 border-4 border-amber-400 rounded-3xl p-8 md:p-10 text-center max-w-lg w-full space-y-6 shadow-2xl">
+            <div class="text-6xl mb-2">🏆</div>
+            <h2 id="winnerText" class="text-4xl md:text-5xl font-game text-amber-400">PEMENANG!</h2>
+            <p id="winnerSub" class="text-slate-200 text-lg md:text-xl font-semibold">Hebat sekali! Kuis kamu sangat cepat!</p>
+            <div class="flex gap-4 pt-4">
+                <button onclick="startGame()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-game py-4 rounded-2xl text-xl transition shadow-xl">
+                    <i class="fa-solid fa-rotate-right"></i> Main Lagi
+                </button>
+                <button onclick="resetToMenu()" class="flex-1 bg-slate-600 hover:bg-slate-500 active:scale-95 text-white font-game py-4 rounded-2xl text-xl transition shadow-xl">
+                    <i class="fa-solid fa-house"></i> Menu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="p-2 text-center text-xs text-slate-500">
+        Math Showdown Agustusan &copy; Edisi Khusus Layar TV / IFP Interaktif
+    </footer>
+
+    <script>
+        // Web Audio API Synth
+        let soundEnabled = true;
+        let musicEnabled = false;
+        let audioCtx = null;
+        let bgmInterval = null;
+        let bgmStep = 0;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    audioCtx = new AudioContext();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, duration, type = 'sine', volume = 0.15) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (!audioCtx) return;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
+        }
+
+        // Child-friendly Upbeat March Melody (Lagu Ceria Anak SD / Agustusan)
+        const childBgmNotes = [
+            // Bar 1: Ceria & Semangat
+            523.25, 523.25, 587.33, 659.25, 523.25, 659.25, 783.99, 783.99,
+            // Bar 2
+            659.25, 659.25, 587.33, 523.25, 587.33, 659.25, 587.33, 587.33,
+            // Bar 3
+            523.25, 523.25, 587.33, 659.25, 783.99, 659.25, 523.25, 523.25,
+            // Bar 4
+            440.00, 523.25, 587.33, 659.25, 523.25, 587.33, 523.25, 523.25
+        ];
+
+        function startBGM() {
+            if (bgmInterval) return;
+            bgmStep = 0;
+            bgmInterval = setInterval(() => {
+                if (!musicEnabled) return;
+                try {
+                    initAudio();
+                    if (!audioCtx) return;
+
+                    const freq = childBgmNotes[bgmStep % childBgmNotes.length];
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                    // Cheerful bright envelope
+                    gain.gain.setValueAtTime(0.09, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.22);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+
+                    bgmStep++;
+                } catch (e) {
+                    console.log("BGM error:", e);
+                }
+            }, 250); // Lively march tempo
+        }
+
+        function stopBGM() {
+            if (bgmInterval) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
+            }
+        }
+
+        function toggleMusic() {
+            initAudio();
+            musicEnabled = !musicEnabled;
+            const musicIcon = document.getElementById('musicIcon');
+            const btnMusic = document.getElementById('btnMusic');
+            
+            if (musicEnabled) {
+                musicIcon.className = "fa-solid fa-music text-lg animate-spin";
+                btnMusic.classList.remove('bg-slate-700', 'border-slate-600');
+                btnMusic.classList.add('bg-emerald-600', 'border-emerald-500');
+                startBGM();
+                playTone(523.25, 0.15, 'triangle', 0.2);
+            } else {
+                musicIcon.className = "fa-solid fa-music text-lg";
+                btnMusic.classList.remove('bg-emerald-600', 'border-emerald-500');
+                btnMusic.classList.add('bg-slate-700', 'border-slate-600');
+                stopBGM();
+                playTone(300, 0.15, 'triangle', 0.1);
+            }
+        }
+
+        function playCorrectSound() {
+            playTone(523.25, 0.1, 'triangle', 0.2);
+            setTimeout(() => playTone(659.25, 0.15, 'triangle', 0.2), 80);
+            setTimeout(() => playTone(783.99, 0.25, 'triangle', 0.2), 160);
+        }
+
+        function playWrongSound() {
+            playTone(200, 0.15, 'sawtooth', 0.2);
+            setTimeout(() => playTone(150, 0.25, 'sawtooth', 0.2), 120);
+        }
+
+        function playVictorySound() {
+            playTone(440, 0.15, 'triangle', 0.25);
+            setTimeout(() => playTone(554.37, 0.15, 'triangle', 0.25), 150);
+            setTimeout(() => playTone(659.25, 0.15, 'triangle', 0.25), 300);
+            setTimeout(() => playTone(880, 0.4, 'triangle', 0.3), 450);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const soundIcon = document.getElementById('soundIcon');
+            if (soundEnabled) {
+                soundIcon.className = "fa-solid fa-volume-high text-lg";
+                playTone(440, 0.1);
+            } else {
+                soundIcon.className = "fa-solid fa-volume-xmark text-lg";
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log("Error fullscreen:", err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Game State Variables
+        let currentGame = 'tug'; 
+        let currentLevel = 'low'; // 'low' (Kelas 1-3) or 'high' (Kelas 4-6)
+        let currentSubject = 'math'; // 'math', 'indo', 'ipa'
+        
+        let p1Name = "Pemain 1";
+        let p2Name = "Pemain 2";
+
+        let p1Score = 0;
+        let p2Score = 0;
+        
+        let gameProgress = 0; 
+        let p1Climb = 0; 
+        let p2Climb = 0; 
+
+        const WIN_THRESHOLD = 5; 
+
+        let p1CurrentProblem = {};
+        let p2CurrentProblem = {};
+
+        function selectGame(game) {
+            initAudio();
+            playTone(350, 0.08);
+            currentGame = game;
+            document.querySelectorAll('.game-opt').forEach(el => {
+                el.classList.remove('border-amber-500', 'bg-amber-500/20');
+                el.classList.add('border-slate-600', 'bg-slate-700');
+            });
+            const active = game === 'tug' ? document.getElementById('optTug') : document.getElementById('optPinang');
+            active.classList.remove('border-slate-600', 'bg-slate-700');
+            active.classList.add('border-amber-500', 'bg-amber-500/20');
+        }
+
+        function selectLevel(level) {
+            initAudio();
+            playTone(350, 0.08);
+            currentLevel = level;
+            document.querySelectorAll('.level-opt').forEach(el => {
+                el.classList.remove('border-pink-500', 'bg-pink-500/20', 'border-indigo-500', 'bg-indigo-500/20');
+                el.classList.add('border-slate-600', 'bg-slate-700');
+            });
+            const active = level === 'low' ? document.getElementById('optLow') : document.getElementById('optHigh');
+            active.classList.remove('border-slate-600', 'bg-slate-700');
+            if (level === 'low') {
+                active.classList.add('border-pink-500', 'bg-pink-500/20');
+            } else {
+                active.classList.add('border-indigo-500', 'bg-indigo-500/20');
+            }
+        }
+
+        function selectSubject(subject) {
+            initAudio();
+            playTone(350, 0.08);
+            currentSubject = subject;
+            document.querySelectorAll('.subject-opt').forEach(el => {
+                el.classList.remove('border-emerald-500', 'bg-emerald-500/20', 'border-sky-500', 'bg-sky-500/20', 'border-amber-500', 'bg-amber-500/20');
+                el.classList.add('border-slate-600', 'bg-slate-700');
+            });
+            const active = subject === 'math' ? document.getElementById('optMath') : (subject === 'indo' ? document.getElementById('optIndo') : document.getElementById('optIpa'));
+            active.classList.remove('border-slate-600', 'bg-slate-700');
+            if (subject === 'math') {
+                active.classList.add('border-emerald-500', 'bg-emerald-500/20');
+            } else if (subject === 'indo') {
+                active.classList.add('border-sky-500', 'bg-sky-500/20');
+            } else {
+                active.classList.add('border-amber-500', 'bg-amber-500/20');
+            }
+        }
+
+        function startGame() {
+            initAudio();
+            playTone(600, 0.2);
+            if (musicEnabled && !bgmInterval) {
+                startBGM();
+            }
+
+            const p1Input = document.getElementById('p1NameInput').value.trim();
+            const p2Input = document.getElementById('p2NameInput').value.trim();
+            
+            p1Name = p1Input !== "" ? p1Input : "Pemain 1";
+            p2Name = p2Input !== "" ? p2Input : "Pemain 2";
+
+            document.getElementById('p1DisplayTag').innerText = p1Name;
+            document.getElementById('p2DisplayTag').innerText = p2Name;
+            document.getElementById('p1PinangTag').innerText = p1Name;
+            document.getElementById('p2PinangTag').innerText = p2Name;
+
+            document.getElementById('p1CardTitle').innerHTML = `<i class="fa-solid fa-user"></i> ${p1Name}`;
+            document.getElementById('p2CardTitle').innerHTML = `<i class="fa-solid fa-user"></i> ${p2Name}`;
+
+            p1Score = 0;
+            p2Score = 0;
+            gameProgress = 0;
+            p1Climb = 0;
+            p2Climb = 0;
+
+            document.getElementById('setupMenu').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('btnHome').classList.remove('hidden');
+            document.getElementById('winnerModal').classList.add('hidden');
+
+            if (currentGame === 'tug') {
+                document.getElementById('tugVisual').classList.remove('hidden');
+                document.getElementById('pinangVisual').classList.add('hidden');
+            } else {
+                document.getElementById('tugVisual').classList.add('hidden');
+                document.getElementById('pinangVisual').classList.remove('hidden');
+            }
+
+            updateScoresAndVisuals();
+            generateNextProblem(1);
+            generateNextProblem(2);
+        }
+
+        function resetToMenu() {
+            initAudio();
+            playTone(300, 0.1);
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('winnerModal').classList.add('hidden');
+            document.getElementById('setupMenu').classList.remove('hidden');
+            document.getElementById('btnHome').classList.add('hidden');
+        }
+
+        // Soal Generator berdasarkan Kelas & Mapel
+        const alphabetList = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+        const indoLowSyllables = [
+            { q: "Huruf setelah huruf 'B' adalah...", ans: "C", opts: ["A", "C", "D", "E"] },
+            { q: "Huruf sebelum huruf 'D' adalah...", ans: "C", opts: ["B", "C", "E", "F"] },
+            { q: "Manakah yang merupakan Huruf Vokal?", ans: "A", opts: ["B", "C", "A", "D"] },
+            { q: "Suku kata awal dari 'B-U-K-U' adalah...", ans: "Bu", opts: ["Ba", "Bu", "Be", "Bo"] },
+            { q: "Suku kata awal dari 'B-O-L-A' adalah...", ans: "Bo", opts: ["Bi", "Bu", "Be", "Bo"] },
+            { q: "Manakah penulisan kata 'K-U-C-I-N-G' yang benar?", ans: "Kucing", opts: ["Kuceng", "Kucing", "Kucang", "Kocing"] },
+            { q: "Huruf konsonan pada kata 'M-A-T-A' adalah...", ans: "M dan T", opts: ["A dan A", "M dan T", "M dan A", "T dan A"] }
+        ];
+
+        const indoHighQuestions = [
+            { q: "Sinonim dari kata 'Rajin' adalah...", ans: "Tekun", opts: ["Malas", "Tekun", "Lambat", "Bodoh"] },
+            { q: "Lawan kata (antonim) dari 'Panas' adalah...", ans: "Dingin", opts: ["Hangat", "Sejuk", "Dingin", "Terang"] },
+            { q: "Penulisan huruf kapital yang benar terdapat pada...", ans: "Budi pergi ke Bali", opts: ["budi pergi ke bali", "Budi pergi ke bali", "Budi pergi ke Bali", "budi Pergi ke Bali"] },
+            { q: "Arti ungkapan 'Keras Kepala' adalah...", ans: "Tidak mau menurut", opts: ["Kepala sakit", "Pintar", "Tidak mau menurut", "Suka bekerja"] },
+            { q: "Sinonim kata 'Cepat' adalah...", ans: "Kilat", opts: ["Lambat", "Kilat", "Tenang", "Jauh"] },
+            { q: "Antonim kata 'Besar' adalah...", ans: "Kecil", opts: ["Luas", "Tinggi", "Kecil", "Panjang"] }
+        ];
+
+        const ipaLowTrueFalse = [
+            { q: "Sapi adalah hewan pemakan tumbuhan (Herbivora).", ans: true },
+            { q: "Kucing adalah hewan pemakan rumput.", ans: false },
+            { q: "Akar tumbuhan berada di dalam tanah.", ans: true },
+            { q: "Ikan bernapas menggunakan paru-paru di dalam air.", ans: false },
+            { q: "Matahari terbit dari arah timur.", ans: true },
+            { q: "Kelinci bergerak dengan cara melompat.", ans: true },
+            { q: "Harimau memakan daging (Karnivora).", ans: true },
+            { q: "Batu dan besi adalah contoh benda cair.", ans: false },
+            { q: "Daun pada umumnya berwarna hijau karena zat klorofil.", ans: true }
+        ];
+
+        const ipaHighQuestions = [
+            { q: "Hewan pemakan daging disebut...", ans: "Karnivora", opts: ["Herbivora", "Karnivora", "Omnivora", "Insectivora"] },
+            { q: "Planet terbesar di tata surya kita adalah...", ans: "Jupiter", opts: ["Mars", "Bumi", "Jupiter", "Saturnus"] },
+            { q: "Sumber energi utama bagi bumi adalah...", ans: "Matahari", opts: ["Bulan", "Matahari", "Bintang", "Air"] },
+            { q: "Bagian tumbuhan yang berfungsi menyerap air adalah...", ans: "Akar", opts: ["Daun", "Batang", "Akar", "Bunga"] },
+            { q: "Hewan yang hidup di air dan darat disebut...", ans: "Amfibi", opts: ["Mamalia", "Reptil", "Amfibi", "Aves"] }
+        ];
+
+        function generateProblem() {
+            if (currentSubject === 'math') {
+                let num1, num2, answer;
+                let operators = currentLevel === 'low' ? ['+', '-'] : ['+', '-', '×', '÷'];
+                let operator = operators[Math.floor(Math.random() * operators.length)];
+                
+                if (currentLevel === 'low') {
+                    // Kelas Rendah: Penjumlahan/Pengurangan kecil (hasil max 15)
+                    if (operator === '+') {
+                        num1 = Math.floor(Math.random() * 8) + 1;
+                        num2 = Math.floor(Math.random() * 7) + 1;
+                        answer = num1 + num2;
+                    } else {
+                        num1 = Math.floor(Math.random() * 9) + 3;
+                        num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
+                        answer = num1 - num2;
+                    }
+                } else {
+                    // Kelas Tinggi: Penjumlahan, Pengurangan, Perkalian, Pembagian
+                    if (operator === '+') {
+                        num1 = Math.floor(Math.random() * 45) + 10;
+                        num2 = Math.floor(Math.random() * 45) + 10;
+                        answer = num1 + num2;
+                    } else if (operator === '-') {
+                        num1 = Math.floor(Math.random() * 60) + 20;
+                        num2 = Math.floor(Math.random() * (num1 - 5)) + 5;
+                        answer = num1 - num2;
+                    } else if (operator === '×') {
+                        num1 = Math.floor(Math.random() * 9) + 2;
+                        num2 = Math.floor(Math.random() * 9) + 2;
+                        answer = num1 * num2;
+                    } else {
+                        // Pembagian (hasil pas bulat)
+                        let factor2 = Math.floor(Math.random() * 8) + 2;
+                        let quotient = Math.floor(Math.random() * 9) + 2;
+                        num1 = factor2 * quotient;
+                        num2 = factor2;
+                        answer = quotient;
+                    }
+                }
+
+                let options = new Set([answer]);
+                while (options.size < 4) {
+                    let offset = (Math.floor(Math.random() * 3) + 1) * (Math.random() > 0.5 ? 1 : -1);
+                    let wrong = answer + offset;
+                    if (wrong >= 0) options.add(wrong);
+                }
+                return {
+                    text: `${num1} ${operator} ${num2} = ?`,
+                    answer: answer,
+                    type: 'mc',
+                    options: Array.from(options).sort(() => Math.random() - 0.5)
+                };
+
+            } else if (currentSubject === 'indo') {
+                if (currentLevel === 'low') {
+                    const item = indoLowSyllables[Math.floor(Math.random() * indoLowSyllables.length)];
+                    return {
+                        text: item.q,
+                        answer: item.ans,
+                        type: 'mc',
+                        options: [...item.opts].sort(() => Math.random() - 0.5)
+                    };
+                } else {
+                    const item = indoHighQuestions[Math.floor(Math.random() * indoHighQuestions.length)];
+                    return {
+                        text: item.q,
+                        answer: item.ans,
+                        type: 'mc',
+                        options: [...item.opts].sort(() => Math.random() - 0.5)
+                    };
+                }
+
+            } else {
+                // IPA
+                if (currentLevel === 'low') {
+                    // Kelas Rendah IPA: Benar atau Salah
+                    const item = ipaLowTrueFalse[Math.floor(Math.random() * ipaLowTrueFalse.length)];
+                    return {
+                        text: item.q,
+                        answer: item.ans,
+                        type: 'tf',
+                        options: []
+                    };
+                } else {
+                    // Kelas Tinggi IPA: Pilihan Ganda Konsep Sains
+                    const item = ipaHighQuestions[Math.floor(Math.random() * ipaHighQuestions.length)];
+                    return {
+                        text: item.q,
+                        answer: item.ans,
+                        type: 'mc',
+                        options: [...item.opts].sort(() => Math.random() - 0.5)
+                    };
+                }
+            }
+        }
+
+        function generateNextProblem(player) {
+            const problem = generateProblem();
+            if (player === 1) {
+                p1CurrentProblem = problem;
+                document.getElementById('p1Math').innerText = problem.text;
+                renderOptions(1, problem.options, problem.type);
+            } else {
+                p2CurrentProblem = problem;
+                document.getElementById('p2Math').innerText = problem.text;
+                renderOptions(2, problem.options, problem.type);
+            }
+        }
+
+        function renderOptions(player, options, type) {
+            const container = document.getElementById(`p${player}Options`);
+            container.innerHTML = '';
+
+            if (type === 'tf') {
+                container.className = "grid grid-cols-2 gap-3 mt-2";
+                
+                const btnTrue = document.createElement('button');
+                btnTrue.type = "button";
+                btnTrue.className = "ifp-btn rounded-2xl font-game text-xl md:text-2xl transition active:scale-95 bg-emerald-700 hover:bg-emerald-600 border-emerald-500 text-white flex items-center justify-center gap-2";
+                btnTrue.innerHTML = `<i class="fa-solid fa-circle-check"></i> BENAR`;
+                btnTrue.onclick = (e) => {
+                    e.preventDefault();
+                    handleAnswer(player, true);
+                };
+                container.appendChild(btnTrue);
+
+                const btnFalse = document.createElement('button');
+                btnFalse.type = "button";
+                btnFalse.className = "ifp-btn rounded-2xl font-game text-xl md:text-2xl transition active:scale-95 bg-rose-700 hover:bg-rose-600 border-rose-500 text-white flex items-center justify-center gap-2";
+                btnFalse.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> SALAH`;
+                btnFalse.onclick = (e) => {
+                    e.preventDefault();
+                    handleAnswer(player, false);
+                };
+                container.appendChild(btnFalse);
+
+            } else {
+                container.className = "grid grid-cols-2 gap-3 mt-2";
+                options.forEach((opt) => {
+                    const btn = document.createElement('button');
+                    btn.type = "button";
+                    btn.className = `ifp-btn rounded-2xl font-game text-xl md:text-2xl transition active:scale-95 ${
+                        player === 1 
+                        ? 'bg-red-800 hover:bg-red-700 border-red-500 text-white' 
+                        : 'bg-sky-800 hover:bg-sky-700 border-sky-500 text-white'
+                    }`;
+                    
+                    btn.innerHTML = `<span>${opt}</span>`;
+
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        handleAnswer(player, opt);
+                    };
+
+                    container.appendChild(btn);
+                });
+            }
+        }
+
+        function handleAnswer(player, selectedAnswer) {
+            initAudio();
+            const currentProblem = player === 1 ? p1CurrentProblem : p2CurrentProblem;
+            const cardEl = document.getElementById(`p${player}Card`);
+
+            if (selectedAnswer === currentProblem.answer) {
+                playCorrectSound();
+                if (player === 1) {
+                    p1Score++;
+                    if (currentGame === 'tug') {
+                        gameProgress -= 1;
+                        triggerPullAnimation('p1');
+                    } else {
+                        p1Climb = Math.min(100, p1Climb + 20);
+                        triggerClimbAnimation('p1');
+                    }
+                } else {
+                    p2Score++;
+                    if (currentGame === 'tug') {
+                        gameProgress += 1;
+                        triggerPullAnimation('p2');
+                    } else {
+                        p2Climb = Math.min(100, p2Climb + 20);
+                        triggerClimbAnimation('p2');
+                    }
+                }
+            } else {
+                playWrongSound();
+                cardEl.classList.add('shake');
+                setTimeout(() => cardEl.classList.remove('shake'), 350);
+
+                if (currentGame === 'tug') {
+                    if (player === 1) gameProgress += 0.5;
+                    else gameProgress -= 0.5;
+                } else {
+                    if (player === 1) p1Climb = Math.max(0, p1Climb - 10);
+                    else p2Climb = Math.max(0, p2Climb - 10);
+                }
+            }
+
+            updateScoresAndVisuals();
+            checkWinner();
+            generateNextProblem(player);
+        }
+
+        function triggerPullAnimation(puller) {
+            const container = document.getElementById('ropeContainer');
+            const animClass = puller === 'p1' ? 'pull-impact-p1' : 'pull-impact-p2';
+            container.classList.add(animClass);
+            setTimeout(() => container.classList.remove(animClass), 250);
+        }
+
+        function triggerClimbAnimation(climber) {
+            const icon = document.getElementById(`${climber}ClimberIcon`);
+            icon.classList.add('climb-action');
+            setTimeout(() => icon.classList.remove('climb-action'), 250);
+        }
+
+        function updateScoresAndVisuals() {
+            document.getElementById('p1Score').innerText = `Skor: ${p1Score}`;
+            document.getElementById('p2Score').innerText = `Skor: ${p2Score}`;
+
+            if (currentGame === 'tug') {
+                const translateX = gameProgress * 36;
+                document.getElementById('ropeContainer').style.transform = `translateX(${translateX}px)`;
+
+                const p1Av = document.getElementById('p1Avatar');
+                const p2Av = document.getElementById('p2Avatar');
+
+                if (gameProgress < -2) {
+                    p1Av.innerText = "💪🏽";
+                    p2Av.innerText = "😰";
+                } else if (gameProgress > 2) {
+                    p1Av.innerText = "😰";
+                    p2Av.innerText = "💪🏽";
+                } else {
+                    p1Av.innerText = "👦🏽";
+                    p2Av.innerText = "👧🏽";
+                }
+
+            } else {
+                document.getElementById('p1Climber').style.bottom = `${p1Climb}%`;
+                document.getElementById('p2Climber').style.bottom = `${p2Climb}%`;
+            }
+        }
+
+        function checkWinner() {
+            let winner = null;
+
+            if (currentGame === 'tug') {
+                if (gameProgress <= -WIN_THRESHOLD) winner = 1;
+                else if (gameProgress >= WIN_THRESHOLD) winner = 2;
+            } else {
+                if (p1Climb >= 100) winner = 1;
+                else if (p2Climb >= 100) winner = 2;
+            }
+
+            if (winner) {
+                setTimeout(() => showWinnerModal(winner), 200);
+            }
+        }
+
+        function showWinnerModal(winner) {
+            playVictorySound();
+            const modal = document.getElementById('winnerModal');
+            const winnerText = document.getElementById('winnerText');
+            const winnerSub = document.getElementById('winnerSub');
+
+            const winnerName = winner === 1 ? p1Name : p2Name;
+
+            if (winner === 1) {
+                winnerText.innerText = `🏆 ${winnerName.toUpperCase()} MENANG!`;
+                winnerText.className = 'text-3xl md:text-5xl font-game text-red-400';
+            } else {
+                winnerText.innerText = `🏆 ${winnerName.toUpperCase()} MENANG!`;
+                winnerText.className = 'text-3xl md:text-5xl font-game text-sky-400';
+            }
+
+            winnerSub.innerText = `Selamat ${winnerName}! Kamu memenangkan lomba ${currentGame === 'tug' ? 'Tarik Tambang' : 'Panjat Pinang'} di layar interaktif! 🎉`;
+
+            modal.classList.remove('hidden');
+
+            confetti({
+                particleCount: 150,
+                spread: 90,
+                origin: { y: 0.6 }
+            });
+        }
+    </script>
+</body>
+</html>
